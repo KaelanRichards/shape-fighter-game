@@ -31,7 +31,9 @@ const ShapeFighterGame: React.FC = () => {
   useEffect(() => {
     if (moveAudio) {
       moveSoundRef.current = moveAudio;
-      moveSoundRef.current?.volume ?? (moveSoundRef.current!.volume = 0);
+      if (moveSoundRef.current) {
+        moveSoundRef.current.volume = 0;
+      }
     }
   }, [moveAudio]);
 
@@ -88,7 +90,7 @@ const ShapeFighterGame: React.FC = () => {
 
           ["player1", "player2"].forEach((playerKey) => {
             const player = playerKey as "player1" | "player2";
-            const playerState = newState[player] as Player;
+            const playerState = newState[player];
             let { x, y, stamina, blocking } = playerState;
             const speed = 200; // Units per second
             const movement = speed * deltaTime;
@@ -147,12 +149,15 @@ const ShapeFighterGame: React.FC = () => {
 
   useEffect(() => {
     requestRef.current = requestAnimationFrame(updateGameState);
-    return () => cancelAnimationFrame(requestRef.current!);
+    return () => {
+      if (requestRef.current) {
+        cancelAnimationFrame(requestRef.current);
+      }
+    };
   }, [updateGameState]);
 
   const attack = useCallback(
     (attacker: "player1" | "player2") => {
-      playHit();
       setGameState((prevState) => {
         if (prevState[attacker].stamina < 20) return prevState;
         const defender = attacker === "player1" ? "player2" : "player1";
@@ -208,14 +213,10 @@ const ShapeFighterGame: React.FC = () => {
       keysPressed.current[e.key] = true;
       switch (e.key) {
         case " ":
-          setTimeout(() => {
-            attack("player1");
-          }, 100);
+          attack("player1");
           break;
         case "Enter":
-          setTimeout(() => {
-            attack("player2");
-          }, 100);
+          attack("player2");
           break;
         case "f":
           setGameState((prev) => ({
