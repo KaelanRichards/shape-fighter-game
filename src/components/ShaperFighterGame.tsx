@@ -86,8 +86,6 @@ const ShapeFighterGame: React.FC = () => {
   });
 
   const keysPressed = useRef<{ [key: string]: boolean }>({});
-  const requestRef = useRef<number>();
-  const previousTimeRef = useRef<number>();
 
   const updatePlayerPosition = (
     player: Player,
@@ -98,14 +96,17 @@ const ShapeFighterGame: React.FC = () => {
     const acceleration = blocking ? ACCELERATION * 0.5 : ACCELERATION;
 
     // Apply acceleration based on input
-    if (keysPressed.current[keys[0]] && !blocking)
-      velocity.x -= acceleration * deltaTime;
-    if (keysPressed.current[keys[1]] && !blocking)
-      velocity.x += acceleration * deltaTime;
-    if (keysPressed.current[keys[2]] && !blocking)
-      velocity.y -= acceleration * deltaTime;
-    if (keysPressed.current[keys[3]] && !blocking)
-      velocity.y += acceleration * deltaTime;
+    let dx = 0,
+      dy = 0;
+    if (keysPressed.current[keys[0]]) dx -= 1;
+    if (keysPressed.current[keys[1]]) dx += 1;
+    if (keysPressed.current[keys[2]]) dy -= 1;
+    if (keysPressed.current[keys[3]]) dy += 1;
+
+    if (!blocking) {
+      velocity.x += dx * acceleration * deltaTime;
+      velocity.y += dy * acceleration * deltaTime;
+    }
 
     // Apply friction
     velocity.x *= FRICTION;
@@ -133,69 +134,66 @@ const ShapeFighterGame: React.FC = () => {
   };
 
   const updateGameState = useCallback(
-    (time: number) => {
-      if (previousTimeRef.current !== undefined) {
-        const deltaTime = (time - previousTimeRef.current) / 1000; // Convert to seconds
+    (deltaTime: number) => {
+      setGameState((prevState) => {
+        if (prevState.winner) return prevState;
 
-        setGameState((prevState) => {
-          if (prevState.winner) return prevState;
+        const newState = { ...prevState };
+        let isAnyPlayerMoving = false;
 
-          const newState = { ...prevState };
-          let isAnyPlayerMoving = false;
+        newState.player1 = updatePlayerPosition(newState.player1, deltaTime, [
+          "a",
+          "d",
+          "w",
+          "s",
+        ]);
+        newState.player2 = updatePlayerPosition(newState.player2, deltaTime, [
+          "ArrowLeft",
+          "ArrowRight",
+          "ArrowUp",
+          "ArrowDown",
+        ]);
 
-          newState.player1 = updatePlayerPosition(newState.player1, deltaTime, [
-            "a",
-            "d",
-            "w",
-            "s",
-          ]);
-          newState.player2 = updatePlayerPosition(newState.player2, deltaTime, [
-            "ArrowLeft",
-            "ArrowRight",
-            "ArrowUp",
-            "ArrowDown",
-          ]);
+        isAnyPlayerMoving =
+          newState.player1.velocity.x !== 0 ||
+          newState.player1.velocity.y !== 0 ||
+          newState.player2.velocity.x !== 0 ||
+          newState.player2.velocity.y !== 0;
 
-          isAnyPlayerMoving =
-            newState.player1.velocity.x !== 0 ||
-            newState.player1.velocity.y !== 0 ||
-            newState.player2.velocity.x !== 0 ||
-            newState.player2.velocity.y !== 0;
+        updateMoveSound(isAnyPlayerMoving);
 
-          updateMoveSound(isAnyPlayerMoving);
+        // Decrease lastHit timer
+        newState.player1.lastHit = Math.max(
+          0,
+          newState.player1.lastHit - deltaTime
+        );
+        newState.player2.lastHit = Math.max(
+          0,
+          newState.player2.lastHit - deltaTime
+        );
 
-          // Decrease lastHit timer
-          newState.player1.lastHit = Math.max(
-            0,
-            newState.player1.lastHit - deltaTime
-          );
-          newState.player2.lastHit = Math.max(
-            0,
-            newState.player2.lastHit - deltaTime
-          );
+        // Apply screen shake decay
+        newState.screenShake = {
+          x: newState.screenShake.x * 0.9,
+          y: newState.screenShake.y * 0.9,
+        };
 
-          // Apply screen shake decay
-          newState.screenShake = {
-            x: newState.screenShake.x * 0.9,
-            y: newState.screenShake.y * 0.9,
-          };
-
-          return newState;
-        });
-      }
-      previousTimeRef.current = time;
-      requestRef.current = requestAnimationFrame(updateGameState);
+        return newState;
+      });
     },
     [updateMoveSound]
   );
 
   useEffect(() => {
-    requestRef.current = requestAnimationFrame(updateGameState);
-    return () => {
-      if (requestRef.current) {
-        cancelAnimationFrame(requestRef.current);
-      }
+    let lastTime = 0;
+    const animate = (time: number) => {
+      const deltaTime = (time - lastTime) / 1000;
+      lastTime = time;
+      updateGameState(deltaTime);
+      requestAnimationFrame(animate);
     };
+    const animationId = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(animationId);
   }, [updateGameState]);
 
   const attack = useCallback(
