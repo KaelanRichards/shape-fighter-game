@@ -75,11 +75,8 @@ export class InputSystem {
   }
 
   private attack(player: PlayerComponent): void {
-    if (player.stamina >= 20) {
-      player.stamina -= 20;
-      // Trigger attack logic here
+    if (player.attack()) {
       console.log(`${player.name} attacks!`);
-      // You might want to create an event system to handle this more elegantly
     }
   }
 

@@ -7,6 +7,7 @@ export class PlayerComponent extends Component {
   public blocking: boolean;
   public name: string;
   public lastAttackTime: number;
+  public isAttacking: boolean;
 
   constructor(entity: Entity, name: string) {
     super(entity);
@@ -15,6 +16,7 @@ export class PlayerComponent extends Component {
     this.blocking = false;
     this.name = name;
     this.lastAttackTime = 0;
+    this.isAttacking = false;
   }
 
   public update(deltaTime: number): void {
@@ -23,6 +25,9 @@ export class PlayerComponent extends Component {
 
     // Cooldown for attacks
     this.lastAttackTime = Math.max(0, this.lastAttackTime - deltaTime);
+
+    // Reset attack state
+    this.isAttacking = false;
   }
 
   public takeDamage(amount: number): void {
@@ -40,6 +45,7 @@ export class PlayerComponent extends Component {
     if (this.stamina >= attackCost && this.lastAttackTime <= 0) {
       this.stamina -= attackCost;
       this.lastAttackTime = 0.5; // 0.5 second cooldown
+      this.isAttacking = true;
       return true;
     }
     return false;

@@ -10,6 +10,7 @@ import { RenderingSystem } from "../systems/RenderingSystem";
 import {
   ARENA_HEIGHT,
   ARENA_WIDTH,
+  ATTACK_RANGE,
   FRICTION,
   MAX_SPEED,
   PLAYER_RADIUS,
@@ -34,6 +35,15 @@ export class PhysicsSystem {
     for (let i = 0; i < entities.length; i++) {
       for (let j = i + 1; j < entities.length; j++) {
         this.checkCollision(entities[i], entities[j]);
+      }
+    }
+
+    // Check for attacks
+    for (let i = 0; i < entities.length; i++) {
+      for (let j = 0; j < entities.length; j++) {
+        if (i !== j) {
+          this.checkAttack(entities[i], entities[j]);
+        }
       }
     }
   }
@@ -148,28 +158,49 @@ export class PhysicsSystem {
       transform1.y -= overlap * ny;
       transform2.x += overlap * nx;
       transform2.y += overlap * ny;
+    }
+  }
 
-      // Handle damage if one player is attacking and the other isn't blocking
-      if (!player1.blocking && !player2.blocking) {
-        const damage = 5; // Example damage value
-        player1.health -= damage;
-        player2.health -= damage;
+  private checkAttack(attacker: Entity, target: Entity): void {
+    const attackerTransform = attacker.getComponent(TransformComponent);
+    const targetTransform = target.getComponent(TransformComponent);
+    const attackerPlayer = attacker.getComponent(PlayerComponent);
+    const targetPlayer = target.getComponent(PlayerComponent);
 
-        // Handle combos
-        const combo1 = entity1.getComponent(ComboComponent);
-        const combo2 = entity2.getComponent(ComboComponent);
+    if (
+      attackerTransform &&
+      targetTransform &&
+      attackerPlayer &&
+      targetPlayer
+    ) {
+      const dx = targetTransform.x - attackerTransform.x;
+      const dy = targetTransform.y - attackerTransform.y;
+      const distance = Math.sqrt(dx * dx + dy * dy);
 
-        if (combo1 && combo2) {
-          combo1.incrementCombo();
-          combo2.resetCombo();
-          this.soundSystem.playComboSound(combo1.comboCount);
-          this.renderingSystem.addScreenShake(0.2 * combo1.comboCount);
-        }
-
-        // Ensure health doesn't go below 0
-        player1.health = Math.max(0, player1.health);
-        player2.health = Math.max(0, player2.health);
+      if (distance <= ATTACK_RANGE && attackerPlayer.isAttacking) {
+        this.resolveAttack(attacker, target);
       }
+    }
+  }
+
+  private resolveAttack(attacker: Entity, target: Entity): void {
+    const attackerPlayer = attacker.getComponent(PlayerComponent);
+    const targetPlayer = target.getComponent(PlayerComponent);
+
+    if (attackerPlayer && targetPlayer && !targetPlayer.blocking) {
+      const damage = 5; // Example damage value
+      targetPlayer.takeDamage(damage);
+
+      // Handle combos
+      const combo = attacker.getComponent(ComboComponent);
+      if (combo) {
+        combo.incrementCombo();
+        this.soundSystem.playComboSound(combo.comboCount);
+        this.renderingSystem.addScreenShake(0.2 * combo.comboCount);
+      }
+
+      // Reset attacker's attack state
+      attackerPlayer.isAttacking = false;
     }
   }
 }
