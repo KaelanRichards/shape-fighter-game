@@ -9,6 +9,7 @@ export class RenderingSystem {
   private ctx: CanvasRenderingContext2D;
   private width: number;
   private height: number;
+  private screenShake: number = 0;
 
   constructor(canvas: HTMLCanvasElement) {
     this.ctx = canvas.getContext("2d")!;
@@ -18,12 +19,33 @@ export class RenderingSystem {
 
   public render(scene: Scene): void {
     this.clearCanvas();
+    this.applyScreenShake();
     this.drawArena();
     this.drawEntities(scene);
   }
 
   private clearCanvas(): void {
     this.ctx.clearRect(0, 0, this.width, this.height);
+  }
+
+  private applyScreenShake(): void {
+    const shakeIntensity = 5;
+    const shakeDecay = 0.9;
+
+    if (this.screenShake > 0) {
+      const shakeOffsetX =
+        (Math.random() - 0.5) * shakeIntensity * this.screenShake;
+      const shakeOffsetY =
+        (Math.random() - 0.5) * shakeIntensity * this.screenShake;
+      this.ctx.translate(shakeOffsetX, shakeOffsetY);
+      this.screenShake *= shakeDecay;
+    } else {
+      this.screenShake = 0;
+    }
+  }
+
+  public addScreenShake(amount: number): void {
+    this.screenShake = Math.min(this.screenShake + amount, 1);
   }
 
   private drawArena(): void {

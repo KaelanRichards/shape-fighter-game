@@ -4,6 +4,7 @@ import { InputSystem } from "../systems/InputSystem";
 import { PhysicsSystem } from "../systems/PhysicsSystem";
 import { RenderingSystem } from "../systems/RenderingSystem";
 import { SoundSystem } from "../systems/SoundSystem";
+import { PlayerComponent } from "../components/PlayerComponent";
 
 export class Engine {
   private scene: Scene;
@@ -17,9 +18,12 @@ export class Engine {
   constructor(canvas: HTMLCanvasElement) {
     this.scene = new Scene();
     this.inputSystem = new InputSystem();
-    this.physicsSystem = new PhysicsSystem();
-    this.renderingSystem = new RenderingSystem(canvas);
     this.soundSystem = new SoundSystem();
+    this.renderingSystem = new RenderingSystem(canvas);
+    this.physicsSystem = new PhysicsSystem(
+      this.soundSystem,
+      this.renderingSystem
+    );
   }
 
   public start(): void {
@@ -57,8 +61,7 @@ export class Engine {
 
     // Check for game over condition
     if (this.isGameOver()) {
-      this.soundSystem.playSound("gameover");
-      this.stop();
+      this.gameOver();
     }
   }
 
@@ -67,9 +70,21 @@ export class Engine {
   }
 
   private isGameOver(): boolean {
-    // Implement game over logic
-    // For example, check if any player's health is 0
-    return false;
+    const players = this.scene
+      .getEntities()
+      .filter((entity) => entity.hasComponent(PlayerComponent));
+    return players.some((player) => {
+      const playerComponent = player.getComponent(PlayerComponent);
+      return playerComponent && playerComponent.health <= 0;
+    });
+  }
+
+  private gameOver(): void {
+    this.stop();
+    this.soundSystem.playSound("gameover");
+    console.log("Game Over!");
+    // You can add more game over logic here, such as displaying a game over screen
+    // or resetting the game state
   }
 
   public getScene(): Scene {
@@ -90,7 +105,7 @@ export class Engine {
 
   public cleanup(): void {
     this.stop();
-    this.inputSystem.cleanup();
     this.soundSystem.cleanup();
+    this.inputSystem.cleanup();
   }
 }

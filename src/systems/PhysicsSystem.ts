@@ -4,6 +4,9 @@ import { Entity } from "../engine/Entity";
 import { TransformComponent } from "../components/TransformComponent";
 import { VelocityComponent } from "../components/VelocityComponent";
 import { PlayerComponent } from "../components/PlayerComponent";
+import { ComboComponent } from "../components/ComboComponent";
+import { SoundSystem } from "../systems/SoundSystem";
+import { RenderingSystem } from "../systems/RenderingSystem";
 import {
   ARENA_HEIGHT,
   ARENA_WIDTH,
@@ -13,6 +16,14 @@ import {
 } from "../utils/constants";
 
 export class PhysicsSystem {
+  private soundSystem: SoundSystem;
+  private renderingSystem: RenderingSystem;
+
+  constructor(soundSystem: SoundSystem, renderingSystem: RenderingSystem) {
+    this.soundSystem = soundSystem;
+    this.renderingSystem = renderingSystem;
+  }
+
   public update(scene: Scene, deltaTime: number): void {
     const entities = scene.getEntities();
 
@@ -143,6 +154,17 @@ export class PhysicsSystem {
         const damage = 5; // Example damage value
         player1.health -= damage;
         player2.health -= damage;
+
+        // Handle combos
+        const combo1 = entity1.getComponent(ComboComponent);
+        const combo2 = entity2.getComponent(ComboComponent);
+
+        if (combo1 && combo2) {
+          combo1.incrementCombo();
+          combo2.resetCombo();
+          this.soundSystem.playComboSound(combo1.comboCount);
+          this.renderingSystem.addScreenShake(0.2 * combo1.comboCount);
+        }
 
         // Ensure health doesn't go below 0
         player1.health = Math.max(0, player1.health);

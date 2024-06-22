@@ -7,6 +7,7 @@ import { VelocityComponent } from "./components/VelocityComponent";
 import { PlayerComponent } from "./components/PlayerComponent";
 import { ColliderComponent } from "./components/ColliderComponent";
 import { RenderComponent } from "./components/RenderComponent";
+import { ComboComponent } from "./components/ComboComponent";
 
 const ShapeFighter: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -55,6 +56,7 @@ const ShapeFighter: React.FC = () => {
     player.addComponent(new PlayerComponent(player, name));
     player.addComponent(new ColliderComponent(player, 20)); // Assuming a radius of 20
     player.addComponent(new RenderComponent(player, color));
+    player.addComponent(new ComboComponent(player));
     scene.addEntity(player);
     return player;
   };

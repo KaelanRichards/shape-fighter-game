@@ -1,5 +1,5 @@
 // src/systems/SoundSystem.ts
-type SoundEffect = "hit" | "block" | "move" | "attack" | "gameover";
+type SoundEffect = "hit" | "block" | "move" | "attack" | "gameover" | "combo";
 
 export class SoundSystem {
   private sounds: Map<SoundEffect, HTMLAudioElement> = new Map();
@@ -19,6 +19,7 @@ export class SoundSystem {
       "move",
       "attack",
       "gameover",
+      "combo",
     ];
     soundEffects.forEach((effect) => {
       const audio = new Audio(`/assets/sounds/${effect}.mp3`);
@@ -50,7 +51,8 @@ export class SoundSystem {
 
   public playSoundWithVariation(
     effect: SoundEffect,
-    pitchVariation: number = 0.1
+    pitchVariation: number = 0.1,
+    pitch: number = 1
   ): void {
     if (this.isMuted) return;
 
@@ -58,7 +60,23 @@ export class SoundSystem {
     if (sound) {
       const clone = sound.cloneNode() as HTMLAudioElement;
       clone.preservesPitch = false;
-      clone.playbackRate = 1 + (Math.random() * 2 - 1) * pitchVariation;
+
+      // Clamp the playback rate to a valid range (e.g., 0.5 to 4.0)
+      const minRate = 0.5;
+      const maxRate = 4.0;
+      const baseRate = pitch;
+      const variationRange = Math.min(
+        baseRate * pitchVariation,
+        maxRate - minRate
+      );
+
+      const randomVariation = (Math.random() * 2 - 1) * variationRange;
+      const newRate = Math.max(
+        minRate,
+        Math.min(maxRate, baseRate + randomVariation)
+      );
+
+      clone.playbackRate = newRate;
       clone.volume = this.volume;
       clone
         .play()
@@ -67,6 +85,22 @@ export class SoundSystem {
         );
     } else {
       console.warn(`Sound effect "${effect}" not found.`);
+    }
+  }
+
+  public playHitSound(intensity: number): void {
+    const hitSounds = ["hit_light", "hit_medium", "hit_heavy"];
+    const soundIndex = Math.min(
+      Math.floor(intensity * hitSounds.length),
+      hitSounds.length - 1
+    );
+    this.playSoundWithVariation(hitSounds[soundIndex] as SoundEffect, 0.1);
+  }
+
+  public playComboSound(comboCount: number): void {
+    if (comboCount > 1) {
+      const pitch = 1 + (comboCount - 2) * 0.1; // Increase pitch for higher combos
+      this.playSoundWithVariation("combo", 0, pitch);
     }
   }
 
