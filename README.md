@@ -1,70 +1,81 @@
-# Getting Started with Create React App
+# Shape Fighter Game
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Shape Fighter is a multiplayer browser-based fighting game where players control geometric shapes and battle against each other in a dynamic arena.
 
-## Available Scripts
+## Features
 
-In the project directory, you can run:
+- Real-time multiplayer gameplay
+- Multiple game scenes: Main Menu, Lobby, and Game
+- Responsive canvas rendering
+- Physics-based movement and collisions
+- Attack and block mechanics
+- Combo system
+- Sound effects and background music
+- Screen shake effects for impactful hits
 
-### `npm start`
+## Technologies Used
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+- React
+- TypeScript
+- HTML5 Canvas
+- WebSocket for real-time communication
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## Getting Started
 
-### `npm test`
+### Prerequisites
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+- Node.js (v14 or later)
+- npm (v6 or later)
 
-### `npm run build`
+### Installation
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+1. Clone the repository:
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+   ```
+   git clone https://github.com/yourusername/shape-fighter-game.git
+   cd shape-fighter-game
+   ```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+2. Install dependencies:
 
-### `npm run eject`
+   ```
+   npm install
+   ```
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+3. Start the development server:
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+   ```
+   npm start
+   ```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+4. Open your browser and navigate to `http://localhost:3000` to play the game.
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+## How to Play
 
-## Learn More
+- Use WASD keys to move your shape
+- Press Space to attack
+- Press F to block
+- Combine movements and attacks to create combos and defeat your opponents
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## Project Structure
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+- `src/`: Source code for the game
+  - `components/`: React components
+  - `engine/`: Game engine core classes
+  - `systems/`: Game systems (e.g., Physics, Rendering, Input)
+  - `scenes/`: Game scenes (Main Menu, Lobby, Game)
+  - `networking/`: Networking and multiplayer functionality
+  - `utils/`: Utility functions and constants
 
-### Code Splitting
+## Contributing
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+Contributions are welcome! Please feel free to submit a Pull Request.
 
-### Analyzing the Bundle Size
+## License
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-### Making a Progressive Web App
+## Acknowledgments
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+- Thanks to the React and TypeScript communities for their excellent documentation and tools.
+- Inspired by classic fighting games and modern multiplayer experiences.
