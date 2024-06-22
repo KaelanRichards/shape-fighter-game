@@ -50,6 +50,67 @@ Shape Fighter is a multiplayer browser-based fighting game where players control
 
 4. Open your browser and navigate to `http://localhost:3000` to play the game.
 
+## Multiplayer Setup
+
+To enable multiplayer functionality, follow these steps:
+
+1. Set up the WebSocket server:
+
+   - Create a new directory for the server: `mkdir server && cd server`
+   - Initialize a new Node.js project: `npm init -y`
+   - Install required dependencies: `npm install ws`
+   - Create a new file `server.js` with the following content:
+
+     ```javascript
+     const WebSocket = require("ws");
+     const wss = new WebSocket.Server({ port: 3001 });
+
+     wss.on("connection", (ws) => {
+       console.log("New client connected");
+
+       ws.on("message", (message) => {
+         console.log("Received:", message);
+         wss.clients.forEach((client) => {
+           if (client !== ws && client.readyState === WebSocket.OPEN) {
+             client.send(message);
+           }
+         });
+       });
+
+       ws.on("close", () => {
+         console.log("Client disconnected");
+       });
+     });
+
+     console.log("WebSocket server started on port 3001");
+     ```
+
+2. Start the WebSocket server:
+
+   - In the `server` directory, run: `node server.js`
+
+3. Update the client-side code:
+
+   - In `src/ShapeFighter.tsx`, ensure the WebSocket connection is established:
+
+     ```typescript
+     const newEngine = new Engine(canvas, "ws://localhost:3001");
+     ```
+
+4. Run the game:
+   - Start the development server: `npm start`
+   - Open multiple browser windows to `http://localhost:3000` to test multiplayer functionality
+
+## Troubleshooting
+
+If you encounter any issues with multiplayer functionality, check the following:
+
+1. Ensure the WebSocket server is running on port 3001.
+2. Check the browser console for any connection errors.
+3. Verify that your firewall is not blocking WebSocket connections.
+
+For more advanced multiplayer features and optimizations, refer to the `NetworkSystem` and `NetworkManager` classes in the source code.
+
 ## How to Play
 
 - Use WASD keys to move your shape
