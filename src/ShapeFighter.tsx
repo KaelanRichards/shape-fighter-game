@@ -19,29 +19,42 @@ const ShapeFighter: React.FC = () => {
     player1: null,
     player2: null,
   });
+  const [isGameOver, setIsGameOver] = useState(false);
 
   useEffect(() => {
     if (!canvasRef.current) return;
 
     const canvas = canvasRef.current;
     const newEngine = new Engine(canvas);
-    const scene = newEngine.getScene();
+    setEngine(newEngine);
+
+    const handleGameOver = () => {
+      setIsGameOver(true);
+      newEngine.stop();
+    };
+
+    newEngine.onGameOver = handleGameOver;
+
+    startGame(newEngine);
+
+    return () => {
+      newEngine.cleanup();
+    };
+  }, []);
+
+  const startGame = (gameEngine: Engine) => {
+    const scene = gameEngine.getScene();
 
     // Create players
     const player1 = createPlayer(scene, "Player 1", 100, 200, "blue");
     const player2 = createPlayer(scene, "Player 2", 300, 200, "red");
 
     setPlayers({ player1, player2 });
-    setEngine(newEngine);
+    setIsGameOver(false);
 
     // Start the game
-    newEngine.start();
-
-    // Clean up
-    return () => {
-      newEngine.cleanup();
-    };
-  }, []);
+    gameEngine.start();
+  };
 
   const createPlayer = (
     scene: Scene,
@@ -61,9 +74,22 @@ const ShapeFighter: React.FC = () => {
     return player;
   };
 
+  const handleRestart = () => {
+    if (engine) {
+      engine.restart();
+      startGame(engine);
+    }
+  };
+
   return (
     <div className="game-container">
       <canvas ref={canvasRef} width={400} height={400} />
+      {isGameOver && (
+        <div className="game-over-overlay">
+          <h2>Game Over</h2>
+          <button onClick={handleRestart}>Restart</button>
+        </div>
+      )}
     </div>
   );
 };

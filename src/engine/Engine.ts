@@ -14,6 +14,7 @@ export class Engine {
   private soundSystem: SoundSystem;
   private isRunning: boolean = false;
   private lastTime: number = 0;
+  public onGameOver: (() => void) | null = null;
 
   constructor(canvas: HTMLCanvasElement) {
     this.scene = new Scene();
@@ -38,6 +39,13 @@ export class Engine {
   public stop(): void {
     this.isRunning = false;
     this.soundSystem.stopMusic();
+  }
+
+  public restart(): void {
+    this.stop();
+    this.scene = new Scene();
+    this.lastTime = performance.now();
+    this.isRunning = false;
   }
 
   private gameLoop(): void {
@@ -85,6 +93,9 @@ export class Engine {
     console.log("Game Over!");
     // You can add more game over logic here, such as displaying a game over screen
     // or resetting the game state
+    if (this.onGameOver) {
+      this.onGameOver();
+    }
   }
 
   public getScene(): Scene {
