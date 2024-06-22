@@ -49,15 +49,43 @@ export class RenderingSystem {
   }
 
   private drawArena(): void {
+    // Draw background
+    this.ctx.fillStyle = "#1a1a2e";
+    this.ctx.fillRect(0, 0, ARENA_WIDTH, ARENA_HEIGHT);
+
+    // Draw grid
+    this.ctx.strokeStyle = "#16213e";
+    this.ctx.lineWidth = 1;
+    const gridSize = 40;
+    for (let x = 0; x <= ARENA_WIDTH; x += gridSize) {
+      this.ctx.beginPath();
+      this.ctx.moveTo(x, 0);
+      this.ctx.lineTo(x, ARENA_HEIGHT);
+      this.ctx.stroke();
+    }
+    for (let y = 0; y <= ARENA_HEIGHT; y += gridSize) {
+      this.ctx.beginPath();
+      this.ctx.moveTo(0, y);
+      this.ctx.lineTo(ARENA_WIDTH, y);
+      this.ctx.stroke();
+    }
+
     // Draw arena border
-    this.ctx.strokeStyle = "white";
-    this.ctx.lineWidth = 2;
+    this.ctx.strokeStyle = "#0f3460";
+    this.ctx.lineWidth = 4;
     this.ctx.strokeRect(0, 0, ARENA_WIDTH, ARENA_HEIGHT);
 
     // Draw center line
+    this.ctx.strokeStyle = "#e94560";
+    this.ctx.lineWidth = 2;
     this.ctx.beginPath();
     this.ctx.moveTo(ARENA_WIDTH / 2, 0);
     this.ctx.lineTo(ARENA_WIDTH / 2, ARENA_HEIGHT);
+    this.ctx.stroke();
+
+    // Draw center circle
+    this.ctx.beginPath();
+    this.ctx.arc(ARENA_WIDTH / 2, ARENA_HEIGHT / 2, 50, 0, Math.PI * 2);
     this.ctx.stroke();
   }
 
