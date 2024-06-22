@@ -8,8 +8,15 @@ export class PlayerComponent extends Component {
   public name: string;
   public lastAttackTime: number;
   public isAttacking: boolean;
+  public isLocalPlayer: boolean;
+  public networkId: string;
 
-  constructor(entity: Entity, name: string) {
+  constructor(
+    entity: Entity,
+    name: string,
+    networkId: string,
+    isLocalPlayer: boolean = false
+  ) {
     super(entity);
     this.health = 100;
     this.stamina = 100;
@@ -17,6 +24,8 @@ export class PlayerComponent extends Component {
     this.name = name;
     this.lastAttackTime = 0;
     this.isAttacking = false;
+    this.isLocalPlayer = isLocalPlayer;
+    this.networkId = networkId;
   }
 
   public update(deltaTime: number): void {
@@ -49,5 +58,25 @@ export class PlayerComponent extends Component {
       return true;
     }
     return false;
+  }
+
+  public serialize(): object {
+    return {
+      networkId: this.networkId,
+      name: this.name,
+      health: this.health,
+      stamina: this.stamina,
+      blocking: this.blocking,
+      isAttacking: this.isAttacking,
+    };
+  }
+
+  public deserialize(data: any): void {
+    this.networkId = data.networkId;
+    this.name = data.name;
+    this.health = data.health;
+    this.stamina = data.stamina;
+    this.blocking = data.blocking;
+    this.isAttacking = data.isAttacking;
   }
 }
